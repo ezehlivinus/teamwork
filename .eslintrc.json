@@ -1,0 +1,13 @@
+{
+  "extends": ["airbnb-base"],
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-console": "off",
+    "linebreak-style": ["error", "windows"]
+  },
+  "parserOptions": { "ecmaVersion": 2015 },
+  "env": {
+    "es6": true,
+    "node": true
+  }
+}
