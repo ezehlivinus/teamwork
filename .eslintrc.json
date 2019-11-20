@@ -4,7 +4,9 @@
     "prefer-const": "off",
     "no-unused-vars": "warn",
     "no-console": "off",
-    "linebreak-style": ["error", "windows"]
+    "linebreak-style": ["error", "windows"],
+    "comma-dangle": "off",
+    "arrow-parens": "off"
   },
   "parserOptions": { "ecmaVersion": 2015 },
   "env": {
