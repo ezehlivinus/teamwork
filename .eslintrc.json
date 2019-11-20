@@ -1,7 +1,7 @@
 {
   "extends": ["airbnb-base"],
   "rules": {
-    "prefer-const": "warn",
+    "prefer-const": "off",
     "no-unused-vars": "warn",
     "no-console": "off",
     "linebreak-style": ["error", "windows"]
