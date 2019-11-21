@@ -1,0 +1,10 @@
+{
+  "jwt_key": "team_jwt_key",
+  "db": {
+    "user": "",
+    "host": "",
+    "database": "",
+    "password": "",
+    "port": ""
+  }
+}

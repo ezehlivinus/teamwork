@@ -1,0 +1,10 @@
+{
+  "jwt_key": "",
+  "db": {
+    "user": "postgres",
+    "host": "localhost",
+    "database": "teamwork",
+    "password": "root",
+    "port": "5432"
+  }
+}
