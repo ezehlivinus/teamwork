@@ -8,6 +8,5 @@ const pool = new Pool(connection);
 pool.connect().then(() => logger.info('Connected to postgres db...'));
 
 module.exports = {
-  query: (queryString, queryParams) => pool.query(queryString, queryParams),
-  pool
+  query: (queryString, queryParams) => pool.query(queryString, queryParams)
 };
