@@ -8,7 +8,9 @@
     "comma-dangle": "off",
     "arrow-parens": "off"
   },
-  "parserOptions": { "ecmaVersion": 2015 },
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
   "env": {
     "es6": true,
     "node": true,

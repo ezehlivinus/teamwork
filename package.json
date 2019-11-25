@@ -25,6 +25,7 @@
     "jasmine": "^3.5.0"
   },
   "dependencies": {
+    "@hapi/joi": "^16.1.8",
     "config": "^3.2.4",
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
