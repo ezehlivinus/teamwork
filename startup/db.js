@@ -22,10 +22,9 @@ const cleanTables = async db => {
     tableNames.push(table.tablename);
   });
 
-  const query = await db.query(
+  await db.query(
     `TRUNCATE TABLE ${tableNames.join(',')} RESTART IDENTITY CASCADE`
   );
-  return query;
 };
 
 const db = {

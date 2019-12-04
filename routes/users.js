@@ -1,26 +1,14 @@
 const express = require('express');
 
 const router = express.Router();
-const db = require('../startup/db');
-const { User, validate } = require('../models/user');
+// const db = require('../startup/db');
+// const { User, validate } = require('../models/user');
+const controller = require('../controllers/userController');
 
-router.get('/', async (req, res) => {
-  // const result = await db.query('SELECT * FROM users');
-  // res.send(result.rows);
-  // const users = await User.find();
-  // res.send(users);
-});
+router.get('/', controller.getUsers);
 
-router.post('/auth/create-user', async (req, res) => {
-  // Return 401 if admin/user is not logged in
-  // Return 400 if name is not provided
-  // Return 400 if email is not provided
-  // Return 400 if username is not provided
-  // Return 400 if password is not provided
-  // Return 400 if username already exist
-  // Return 400 if email already exist
-  // Return 200 if this is a valid request
-  // Retun the user
-});
+router.get('/:id', controller.getUser);
+
+router.post('/auth/create-user', controller.createUser);
 
 module.exports = router;
