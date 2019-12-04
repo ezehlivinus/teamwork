@@ -1,5 +1,5 @@
 {
-  "jwt_key": "",
+  "jwt_key": "1234",
   "db": {
     "user": "postgres",
     "host": "localhost",

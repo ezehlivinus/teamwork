@@ -3,7 +3,7 @@
   "db": {
     "user": "postgres",
     "host": "localhost",
-    "database": "teamwork",
+    "database": "teamwork_test",
     "password": "root",
     "port": "5432"
   }
