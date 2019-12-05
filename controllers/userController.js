@@ -1,5 +1,7 @@
 const db = require('../startup/db');
-const { User, validate } = require('../models/user');
+const { User, validateUser } = require('../models/user');
+const validate = require('../middleware/validate');
+const Joi = require('@hapi/joi');
 
 exports.getUsers = async (req, res) => {
   // async (req, res) => {
@@ -16,20 +18,48 @@ exports.getUser = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-  if (!req.body.password) return res.status(400).send('password not provided');
+  // const user = new User('ezeh', 'ezeh@gamil.com')
+  let user = await User.findOne(req.body.email);
 
-  if (!req.body.username) return res.status(400).send('username not provided');
+  if (user.rowCount > 0) {
+    return res
+      .status(400)
+      .send({ status: 'error', error: 'User already registered' });
+  }
 
-  if (!req.body.name) return res.status(400).send("user's name not provided");
+  let values = [
+    req.body.username,
+    req.body.email,
+    req.body.password,
+    req.body.name,
+    req.body.is_admin
+  ];
 
-  if (!req.body.email) return res.status(400).send("user's email not provided");
+  user = new User(...values);
+  user = await user.save();
 
-  const user = await User.findUsername('ezehlivinus');
+  let data = {
+    message: 'User account created successfully',
+    ...user
+  };
 
-  if (!user) return res.status(404).send('No user found');
-
-  res.send(user);
+  res.send({ status: 'Success', data });
   // res.status(200).send('User created successfully');
 
   // Retun the user
+};
+
+exports.login = async (req, res) => {
+  // res.send('He is logged in');
+  // const login = user => {
+  //   const schema = Joi.object({
+  //     username: Joi.string()
+  //       .alphanum()
+  //       .min(3),
+  //     password: Joi.string()
+  //       .required()
+  //       .min(3)
+  //   });
+  //   return schema.validate(user);
+  // };
 };

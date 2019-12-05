@@ -2,6 +2,7 @@
 const Joi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const _ = require('lodash');
 const { Model } = require('./model');
 const { db } = require('../startup/db');
 
@@ -12,7 +13,7 @@ class User extends Model {
     this.username = username;
     this.email = email;
     this.password = password;
-    this.is_admin = is_admin;
+    this.is_admin = !!is_admin;
   }
 
   static generateAuthToken() {
@@ -33,23 +34,39 @@ class User extends Model {
       this.is_admin
     ];
     const text = `INSERT INTO users 
-      (username, email, password, name, is_admin) VALUES($1, $2, $3, $4, $5)`;
+      (username, email, password, name, is_admin) VALUES($1, $2, $3, $4, $5) RETURNING id`;
 
-    const result = await db.query(text, values);
+    let result = await db.query(text, values);
 
-    const user = await User.findById(result.rowCount);
+    let user = await User.findById(result.rows[0].id);
+    user = _.pick(user, ['rows']);
+
+    [user] = [user.rows[0]];
+    delete user.password;
+
     return user;
   }
 
-  static async findUsername() {
-    const tableName = `users`;
-    const result = await db.query(`SELECT * FROM ${tableName}`);
+  static async findByUsername(email, password) {
+    const tableName = 'users';
+    const result = await db.query(
+      `SELECT * FROM ${tableName} WHERE email = $1 OR username = $1 AND password = $2`,
+      [email, password]
+    );
+    return result;
+  }
+
+  static async findOne(email) {
+    const result = await db.query(
+      'SELECT * FROM users WHERE email = $1 LIMIT 1',
+      [email]
+    );
     return result;
   }
 }
 
 const validateUser = user => {
-  const schema = {
+  const schema = Joi.object({
     name: Joi.string()
       .min(3)
       .required(),
@@ -62,11 +79,11 @@ const validateUser = user => {
     email: Joi.string()
       .email()
       .required(),
-    is_admin: Joi.boolean()
-  };
+    is_admin: Joi.string().length(4)
+  });
 
-  return Joi.validate(user, schema);
+  return schema.validate(user);
 };
 
 module.exports.User = User;
-module.exports.validate = validateUser;
+module.exports.validateUser = validateUser;

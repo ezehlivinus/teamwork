@@ -4,7 +4,7 @@
   "description": "Teamwork is an internal social network for employees of an organization. The goal of this application is to facilitate more interaction between colleagues and promote team bonding.",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine",
+    "test": "jest --watchAll",
     "lint": "eslint"
   },
   "repository": {
@@ -32,6 +32,7 @@
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
     "pg": "^7.14.0",
     "winston": "^3.2.1"
   }
