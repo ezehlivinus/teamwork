@@ -7,7 +7,8 @@ exports.getUsers = async (req, res) => {
   // res.send(result.rows);
   // const users = await User.find();
   // res.send(users);
-  res.send('NOT IMPLEMENTED: Users list');
+  // let token = await User.generateAuthToken();
+  // res.send(token);
 };
 
 exports.getUser = async (req, res) => {
@@ -15,13 +16,20 @@ exports.getUser = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-  // Return 401 if admin/user is not logged in
-  // Return 400 if name is not provided
-  // Return 400 if email is not provided
-  // Return 400 if username is not provided
-  // Return 400 if password is not provided
-  // Return 400 if username already exist
-  // Return 400 if email already exist
-  // Return 200 if this is a valid request
+  if (!req.body.password) return res.status(400).send('password not provided');
+
+  if (!req.body.username) return res.status(400).send('username not provided');
+
+  if (!req.body.name) return res.status(400).send("user's name not provided");
+
+  if (!req.body.email) return res.status(400).send("user's email not provided");
+
+  const user = await User.findUsername('ezehlivinus');
+
+  if (!user) return res.status(404).send('No user found');
+
+  res.send(user);
+  // res.status(200).send('User created successfully');
+
   // Retun the user
 };

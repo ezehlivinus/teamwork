@@ -3,6 +3,7 @@ const Joi = require('@hapi/joi');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { Model } = require('./model');
+const { db } = require('../startup/db');
 
 class User extends Model {
   constructor(username, email, password, name = null, is_admin = false) {
@@ -21,6 +22,29 @@ class User extends Model {
     );
 
     return token;
+  }
+
+  async save() {
+    const values = [
+      this.username,
+      this.email,
+      this.password,
+      this.name,
+      this.is_admin
+    ];
+    const text = `INSERT INTO users 
+      (username, email, password, name, is_admin) VALUES($1, $2, $3, $4, $5)`;
+
+    const result = await db.query(text, values);
+
+    const user = await User.findById(result.rowCount);
+    return user;
+  }
+
+  static async findUsername() {
+    const tableName = `users`;
+    const result = await db.query(`SELECT * FROM ${tableName}`);
+    return result;
   }
 }
 

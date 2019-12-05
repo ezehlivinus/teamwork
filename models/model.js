@@ -1,4 +1,4 @@
-const db = require('../startup/db');
+const { db } = require('../startup/db');
 
 class Model {
   static async findById(id) {
