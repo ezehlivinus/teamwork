@@ -5,17 +5,41 @@ const config = require('config');
 const { User } = require('../models/user');
 
 exports.getUsers = async (req, res) => {
-  // async (req, res) => {
-  // const result = await db.query('SELECT * FROM users');
-  // res.send(result.rows);
-  // const users = await User.find();
-  // res.send(users);
-  // let token = await User.generateAuthToken();
-  // res.send(token);
+  let users = await User.find();
+  if (_.isEmpty(users)) {
+    return res.status(404).send({ status: 'error', message: 'No user found' });
+  }
+
+  const data = {
+    ...users
+  };
+
+  res.status(200).send({ status: 'Success', data });
 };
 
 exports.getUser = async (req, res) => {
-  res.send('NOT IMPLEMENTED: Get a single users');
+  let id = Number.parseInt(req.params.id);
+
+  if (!_.isInteger(id)) {
+    return res.status(400).send('User not found');
+  }
+
+  let user;
+  try {
+    user = await User.findById(id);
+  } catch (ex) {
+    return res.status(400).send(`User not found: ${ex} `);
+  }
+
+  if (_.isEmpty(user)) {
+    return res.status(404).send({ status: 'error', message: 'No user found' });
+  }
+
+  const data = {
+    ...user
+  };
+
+  res.status(200).send({ status: 'Success', data });
 };
 
 exports.createUser = async (req, res) => {

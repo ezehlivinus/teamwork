@@ -63,6 +63,17 @@ class User extends Model {
     return result;
   }
 
+  static async find() {
+    let result = await db.query(`SELECT * FROM users`);
+
+    result = _.pick(result, ['rows']);
+    [result] = [result.rows];
+
+    delete result.password;
+
+    return result;
+  }
+
   return() {
     return this;
   }
