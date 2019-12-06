@@ -13,7 +13,7 @@ class User extends Model {
     this.username = username;
     this.email = email;
     this.password = password;
-    this.is_admin = !!is_admin;
+    this.is_admin = is_admin === true;
   }
 
   static generateAuthToken() {
@@ -39,20 +39,19 @@ class User extends Model {
     let result = await db.query(text, values);
 
     let user = await User.findById(result.rows[0].id);
-    user = _.pick(user, ['rows']);
-
-    [user] = [user.rows[0]];
-    delete user.password;
 
     return user;
   }
 
-  static async findByUsername(email, password) {
+  static async findByEmail(email) {
     const tableName = 'users';
-    const result = await db.query(
-      `SELECT * FROM ${tableName} WHERE email = $1 OR username = $1 AND password = $2`,
-      [email, password]
+    let result = await db.query(
+      `SELECT * FROM ${tableName} WHERE email = $1 OR username = $1`,
+      [email]
     );
+
+    result = _.pick(result, ['rows']);
+    [result] = [result.rows[0]];
     return result;
   }
 
@@ -63,8 +62,13 @@ class User extends Model {
     );
     return result;
   }
+
+  return() {
+    return this;
+  }
 }
 
+// Signup details
 const validateUser = user => {
   const schema = Joi.object({
     name: Joi.string()
@@ -79,11 +83,25 @@ const validateUser = user => {
     email: Joi.string()
       .email()
       .required(),
-    is_admin: Joi.string().length(4)
+    is_admin: Joi.boolean()
   });
 
   return schema.validate(user);
 };
 
+// Signin detal
+const signin = user => {
+  const schema = Joi.object({
+    email: Joi.string()
+      .email()
+      .required(),
+    password: Joi.string()
+      .required()
+      .min(3)
+  });
+  return schema.validate(user);
+};
+
 module.exports.User = User;
 module.exports.validateUser = validateUser;
+module.exports.signin = signin;

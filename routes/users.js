@@ -4,7 +4,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin'); // user this after testing
 const validate = require('../middleware/validate');
-const { validateUser } = require('../models/user');
+const { validateUser, signin } = require('../models/user');
 
 const controller = require('../controllers/userController');
 
@@ -14,11 +14,11 @@ router.get('/:id', controller.getUser);
 
 router.post(
   '/auth/create-user',
-  // [auth, validate(validateUser)],
-  validate(validateUser),
+  [auth, admin, validate(validateUser)],
+  //   validate(validateUser),
   controller.createUser
 );
 
-router.post('/auth/', controller.login);
+router.post('/auth/signin', [validate(signin)], controller.signin);
 
 module.exports = router;
