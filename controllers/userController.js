@@ -10,9 +10,7 @@ exports.getUsers = async (req, res) => {
     return res.status(404).send({ status: 'error', message: 'No user found' });
   }
 
-  const data = {
-    ...users
-  };
+  const data = [...users];
 
   res.status(200).send({ status: 'Success', data });
 };
@@ -108,4 +106,39 @@ exports.signin = async (req, res) => {
   res
     .status(200)
     .send({ status: 'Success', message: 'Login was successful', data });
+};
+
+exports.editUser = async (req, res) => {
+  let id = Number.parseInt(req.params.id);
+
+  if (!_.isInteger(id)) {
+    return res.status(400).send('User not found');
+  }
+
+  let user;
+  try {
+    user = await User.findById(id);
+  } catch (ex) {
+    return res.status(400).send(`User not found: ${ex} `);
+  }
+
+  if (_.isEmpty(user)) {
+    return res.status(404).send({ status: 'error', message: 'No user found' });
+  }
+
+  req.body.id = id;
+
+  user = await User.findByIdAndUpadte(req.body);
+
+  const data = {
+    ...user
+  };
+
+  res.status(200).send({ status: 'Success', data });
+};
+
+exports.deleteUser = async (req, res) => {
+  await User.findByIdAndDelete(req.params.id);
+
+  res.status(200).send({ status: 'Success', message: 'User deleted' });
 };

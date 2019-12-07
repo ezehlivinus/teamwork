@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin'); // user this after testing
+const canEdit = require('../middleware/can_edit');
 const validate = require('../middleware/validate');
 const { validateUser, signin } = require('../models/user');
 
@@ -20,5 +21,13 @@ router.post(
 );
 
 router.post('/auth/signin', [validate(signin)], controller.signin);
+
+router.patch(
+  '/:id',
+  [auth, canEdit, validate(validateUser)],
+  controller.editUser
+);
+
+router.delete('/:id', auth, controller.deleteUser);
 
 module.exports = router;

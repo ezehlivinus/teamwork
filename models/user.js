@@ -63,8 +63,15 @@ class User extends Model {
     return result;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  static async sterilise(result) {
+    let row = _.pick(result, ['rows']);
+    [row] = [row.rows[0]];
+    return row;
+  }
+
   static async find() {
-    let result = await db.query(`SELECT * FROM users`);
+    let result = await db.query('SELECT * FROM users');
 
     result = _.pick(result, ['rows']);
     [result] = [result.rows];
@@ -72,6 +79,39 @@ class User extends Model {
     delete result.password;
 
     return result;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  static async update(user) {
+    const fields = `username = ($1), email = ($2), name = ($3), is_admin = ($4)`;
+
+    let result = await db.query(
+      `UPDATE users SET ${fields} WHERE id = ($5) RETURNING *`,
+      [user.username, user.email, user.name, user.is_admin, user.id]
+    );
+
+    result = await this.sterilise(result);
+
+    return result;
+  }
+
+  static async findByIdAndUpadte(user) {
+    let result = await this.update(user);
+
+    delete result.password;
+
+    return result;
+  }
+
+  static async delete(id) {
+    let result = await db.query('DELETE from users WHERE id = ($1) ', [id]);
+    return result;
+  }
+
+  static async findByIdAndDelete(id) {
+    let result = await this.findById(id);
+
+    return this.delete(result.id);
   }
 
   return() {
@@ -100,7 +140,7 @@ const validateUser = user => {
   return schema.validate(user);
 };
 
-// Signin detal
+// Signin details
 const signin = user => {
   const schema = Joi.object({
     email: Joi.string()

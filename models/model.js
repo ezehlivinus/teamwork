@@ -5,15 +5,19 @@ class Model {
   static async findById(id) {
     const tableName = `${this.name.toLowerCase()}s`;
     // make this to accept more parameters in place of *
-    let result = await db.query(`SELECT * FROM ${tableName} WHERE id = $1`, [
-      id
-    ]);
-    result = _.pick(result, ['rows']);
-    [result] = [result.rows[0]];
+    try {
+      let result = await db.query(`SELECT * FROM ${tableName} WHERE id = $1`, [
+        id
+      ]);
+      result = _.pick(result, ['rows']);
+      [result] = [result.rows[0]];
 
-    if (`${tableName}` === 'users') delete result.password;
+      if (`${tableName}` === 'users') delete result.password;
 
-    return result;
+      return result;
+    } catch (ex) {
+      throw new Error(`What you looked for was Not found or possibly : ${ex}`);
+    }
   }
 
   static async find() {
