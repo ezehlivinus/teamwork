@@ -17,7 +17,7 @@ This end point accepts data that has the following properties/field on it body
 
 -- Post: /auth/signin
 full url:  <localhost:port || somesite.domain>/api/v1/users/auth/signin
-Data:
+
 {
 	"email": "some@email.com",
 	"password": "some-password",
