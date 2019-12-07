@@ -2,6 +2,7 @@
 Teamwork is an internal social network for employees of an organization. The goal of this application is to facilitate more interaction between colleagues and promote team bonding.
 
 ## Basics: api end points
+<pre>
 Base url: <localhost:port || somesite.domain>/api/v1/users
 Users:
 -- Post: /auth/create-user
@@ -41,3 +42,4 @@ full url:  <localhost:port || somesite.domain>/api/v1/users/<id>
 
 -- Delete: delete a user: /id
   full url:  <localhost:port || somesite.domain>/api/v1/users/<id>
+</pre>
