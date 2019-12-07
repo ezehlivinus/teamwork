@@ -3,7 +3,7 @@ Teamwork is an internal social network for employees of an organization. The goa
 
 ## Basics: api end points
 <pre>
-Base url: <localhost:port || somesite.domain>/api/v1/users
+Base path: /api/v1/users
 Users:
 -- Post: /auth/create-user
 This end point accepts data that has the following properties/field on it body
@@ -17,7 +17,7 @@ This end point accepts data that has the following properties/field on it body
 }
 
 -- Post: /auth/signin
-full url:  <localhost:port || somesite.domain>/api/v1/users/auth/signin
+path: /api/v1/users/auth/signin
 
 {
 	"email": "some@email.com",
@@ -25,13 +25,13 @@ full url:  <localhost:port || somesite.domain>/api/v1/users/auth/signin
 }
 
 -- Get: fetch all users: /
-full url:  <localhost:port || somesite.domain>/api/v1/users
+path: /api/v1/users
 
 -- Get: fetch a user: /<id>
-  full url:  <localhost:port || somesite.domain>/api/v1/users/id
+  path: /api/v1/users/id
   
 -- Patch: Update a user: /id
-full url:  <localhost:port || somesite.domain>/api/v1/users/<id>
+apth:  /api/v1/users/<id>
 {
 	"name": "joe",
 	"username": "joe123",
@@ -41,5 +41,5 @@ full url:  <localhost:port || somesite.domain>/api/v1/users/<id>
 }
 
 -- Delete: delete a user: /id
-  full url:  <localhost:port || somesite.domain>/api/v1/users/<id>
+  path: /api/v1/users/<id>
 </pre>
