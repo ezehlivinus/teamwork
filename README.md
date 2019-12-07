@@ -36,7 +36,6 @@ apth:  /api/v1/users/<id>
 	"name": "joe",
 	"username": "joe123",
 	"email": "some@email.com",
-	"password": "some-password",
 	"is_admin": false
 }
 
