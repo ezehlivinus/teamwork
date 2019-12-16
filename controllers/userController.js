@@ -2,110 +2,93 @@ const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+// const { User } = require('../modelss/user');
+const Sequelize = require('sequelize');
+
 const { User } = require('../models/user');
 
 exports.getUsers = async (req, res) => {
-  let users = await User.find();
+  let users = await User.findAll({ limit: 5, offset: 0 });
+
   if (_.isEmpty(users)) {
     return res.status(404).send({ status: 'error', message: 'No user found' });
   }
 
-  const data = [...users];
-
-  res.status(200).send({ status: 'Success', data });
+  res.status(200).send({ status: 'Success', data: users });
 };
 
 exports.getUser = async (req, res) => {
   let id = Number.parseInt(req.params.id);
 
-  if (!_.isInteger(id)) {
-    return res.status(400).send('User not found');
-  }
-
   let user;
   try {
-    user = await User.findById(id);
+    user = await User.findByPk(id);
+    if (_.isEmpty(user)) {
+      return res.status(404).send({ status: 'error', message: 'No user found' });
+    }
+
+    delete user.dataValues.password;
+    res.status(200).send({ status: 'Success', data: user });
   } catch (ex) {
-    return res.status(400).send(`User not found: ${ex} `);
+    throw new Error(ex);
   }
-
-  if (_.isEmpty(user)) {
-    return res.status(404).send({ status: 'error', message: 'No user found' });
-  }
-
-  const data = {
-    ...user
-  };
-
-  res.status(200).send({ status: 'Success', data });
 };
 
 exports.createUser = async (req, res) => {
-  let user = await User.findOne(req.body.email);
+  try {
+    let user = await User.build(req.body);
+    user.slug = User.slug(req.body.name, req.body.email);
 
-  if (user.rowCount > 0) {
-    return res
-      .status(400)
-      .send({ status: 'error', message: 'User already registered' });
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+
+    await user.save();
+
+    delete user.dataValues.password;
+
+    const token = user.generateAuthToken();
+
+    user.dataValues.message = 'User account created successfully';
+    user.dataValues.token = token;
+
+    res.status(200).send({ status: 'Success', data: user });
+  } catch (ex) {
+    let excemption = ex;
+    if (!_.isEmpty(ex.errors)) {
+      let error = ex.errors[0];
+      excemption = `${error.type}, ${error.message}`;
+    }
+
+    throw new Error(excemption);
   }
-
-  let values = [
-    req.body.username,
-    req.body.email,
-    req.body.password,
-    req.body.name,
-    req.body.is_admin
-  ];
-
-  user = new User(...values);
-
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(user.password, salt);
-
-  user = await user.save();
-
-  const token = User.generateAuthToken();
-
-  const data = {
-    message: 'User account created successfully',
-    ...user,
-    token
-  };
-
-  res.status(200).send({ status: 'Success', data });
 };
 
 exports.signin = async (req, res) => {
-  let user = await User.findByEmail(req.body.email);
+  try {
+    let user = await User.findOne({
+      where: {
+        email: req.body.email
+      }
+    });
 
-  if (_.isEmpty(user)) {
-    return res
-      .status(400)
-      .send({ status: 'error', message: 'Invalide password or email' });
+    if (_.isEmpty(user)) {
+      return res.status(400).send({ status: 'error', message: 'Invalide password or email' });
+    }
+
+    const validPassword = await bcrypt.compare(req.body.password, user.password);
+    if (!validPassword) {
+      return res.status(400).send({ status: 'error', message: 'Invalide password or email' });
+    }
+
+    delete user.dataValues.password;
+    const token = jwt.sign({ id: user.id, isAdmin: user.isAdmin }, config.get('jwt_key'));
+
+    user.dataValues.token = token;
+
+    res.status(200).send({ status: 'Success', message: 'Login was successful', data: user });
+  } catch (ex) {
+    throw new Error(ex);
   }
-
-  const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) {
-    return res
-      .status(400)
-      .send({ status: 'error', message: 'Invalide password or email' });
-  }
-
-  delete user.password;
-
-  const token = jwt.sign(
-    { id: user.id, is_admin: user.is_admin },
-    config.get('jwt_key')
-  );
-
-  const data = {
-    ...user,
-    token
-  };
-
-  res
-    .status(200)
-    .send({ status: 'Success', message: 'Login was successful', data });
 };
 
 exports.editUser = async (req, res) => {
@@ -117,28 +100,56 @@ exports.editUser = async (req, res) => {
 
   let user;
   try {
-    user = await User.findById(id);
+    user = await User.findOne({
+      where: {
+        id: req.params.id
+      }
+    });
+
+    if (_.isEmpty(user)) {
+      return res.status(404).send({ status: 'error', message: 'No user found' });
+    }
+
+    delete user.dataValues.password;
+    user.update(req.body);
+    delete user.dataValues.password;
+    user.message = 'Edited successfully';
+
+    res.status(200).send({ status: 'Success', data: user });
   } catch (ex) {
-    return res.status(400).send(`User not found: ${ex} `);
+    let excemption = ex;
+    if (!_.isEmpty(ex.errors)) {
+      let error = ex.errors[0];
+      excemption = `${error.type}, ${error.message}`;
+    }
+
+    throw new Error(excemption);
   }
-
-  if (_.isEmpty(user)) {
-    return res.status(404).send({ status: 'error', message: 'No user found' });
-  }
-
-  req.body.id = id;
-
-  user = await User.findByIdAndUpadte(req.body);
-
-  const data = {
-    ...user
-  };
-
-  res.status(200).send({ status: 'Success', data });
 };
 
 exports.deleteUser = async (req, res) => {
-  await User.findByIdAndDelete(req.params.id);
+  try {
+    let user = await User.findOne({
+      where: {
+        id: req.params.id
+      }
+    });
+
+    if (_.isEmpty(user)) {
+      return res.status(404).send({ status: 'error', message: 'Something went wrong....' });
+    }
+
+    user.destroy();
+    res.status(200).send({ status: 'Success', data: user });
+  } catch (ex) {
+    let excemption = ex;
+    if (!_.isEmpty(ex.errors)) {
+      let error = ex.errors[0];
+      excemption = `${error.type}, ${error.message}`;
+    }
+
+    throw new Error(excemption);
+  }
 
   res.status(200).send({ status: 'Success', message: 'User deleted' });
 };
